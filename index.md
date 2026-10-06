@@ -1,0 +1,38 @@
+---
+title: ملاحظات
+---
+
+<div dir="rtl" markdown="1">
+
+# ملاحظات Claude Code المهمة
+
+## Hostinger
+
+### لو ظهرت الرسالة دي — الاتصال محتاج تسجيل دخول تاني (مش تنصيب)
+
+```
+plugin:hostinger:hostinger: https://mcp.hostinger.com (HTTP) - ! Needs authentication
+```
+
+الحل: داخل `claude` اكتب `/mcp` ← اختار **plugin:hostinger:hostinger** ← **Authenticate** ←
+انسخ الرابط في المتصفح (WSL مش بيفتح المتصفح لوحده) وتأكد إنك داخل على **الحساب الصح** قبل الموافقة.
+
+لو السطر اختفى تمامًا من `claude mcp list` ← ساعتها بس تنصّب البلجن تاني:
+`/plugin install hostinger@claude-plugins-official`
+
+### إضافة حساب Hostinger تاني
+
+```bash
+claude mcp add --transport http --scope user hostinger-2 https://mcp.hostinger.com
+```
+
+بعدها: افتح نافذة **خاصة (Private)** وادخل على الحساب التاني ← `/mcp` ← **hostinger-2** ← **Authenticate**.
+وقت الاستخدام قول اسم الاتصال صراحة: «باستخدام hostinger-2 …».
+
+### التحقق
+
+```bash
+claude mcp list
+```
+
+</div>
