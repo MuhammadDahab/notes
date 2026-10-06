@@ -5,15 +5,18 @@ layout: default
 
 <!--
 طريقة الكتابة:
-  ## اسم مجموعة   (مثلاً: Hostinger أو GitHub)  ← بتظهر كعنوان مجموعة في الفهرس
-  ### عنوان ملاحظة                               ← كل واحدة بتبقى كارت لوحدها وبتظهر في الفهرس
+  ## اسم مجموعة      (مثلاً: Claude Code أو GitHub)  ← عنوان مجموعة في الفهرس
+  ### عنوان ملاحظة                                   ← كل ملاحظة كارت لوحدها وبتظهر في الفهرس
+  #### عنوان فرعي                                    ← أجزاء جوه نفس الملاحظة (مش بتظهر في الفهرس)
 -->
 
-# ملاحظات Claude Code المهمة
+# ملاحظاتي
 
-## Hostinger
+## Claude Code
 
-### لو ظهرت الرسالة دي — الاتصال محتاج تسجيل دخول تاني (مش تنصيب)
+### ربط Hostinger بـ Claude Code (MCP)
+
+#### لو ظهرت الرسالة دي — الاتصال محتاج تسجيل دخول تاني (مش تنصيب)
 
 ```
 plugin:hostinger:hostinger: https://mcp.hostinger.com (HTTP) - ! Needs authentication
@@ -25,7 +28,7 @@ plugin:hostinger:hostinger: https://mcp.hostinger.com (HTTP) - ! Needs authentic
 لو السطر اختفى تمامًا من `claude mcp list` ← ساعتها بس تنصّب البلجن تاني:
 `/plugin install hostinger@claude-plugins-official`
 
-### إضافة حساب Hostinger تاني
+#### إضافة حساب Hostinger تاني
 
 ```bash
 claude mcp add --transport http --scope user hostinger-2 https://mcp.hostinger.com
@@ -34,7 +37,7 @@ claude mcp add --transport http --scope user hostinger-2 https://mcp.hostinger.c
 بعدها: افتح نافذة **خاصة (Private)** وادخل على الحساب التاني ← `/mcp` ← **hostinger-2** ← **Authenticate**.
 وقت الاستخدام قول اسم الاتصال صراحة: «باستخدام hostinger-2 …».
 
-### التحقق
+#### التحقق
 
 ```bash
 claude mcp list
