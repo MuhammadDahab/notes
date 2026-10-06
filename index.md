@@ -1,8 +1,13 @@
 ---
 title: ملاحظات
+layout: default
 ---
 
-<div dir="rtl" markdown="1">
+<!--
+طريقة الكتابة:
+  ## اسم مجموعة   (مثلاً: Hostinger أو GitHub)  ← بتظهر كعنوان مجموعة في الفهرس
+  ### عنوان ملاحظة                               ← كل واحدة بتبقى كارت لوحدها وبتظهر في الفهرس
+-->
 
 # ملاحظات Claude Code المهمة
 
@@ -35,4 +40,3 @@ claude mcp add --transport http --scope user hostinger-2 https://mcp.hostinger.c
 claude mcp list
 ```
 
-</div>
