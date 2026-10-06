@@ -70,7 +70,21 @@ body{margin:0; background:var(--bg); color:var(--text);
 .note h3{font-size:18px; margin:12px 0 6px; line-height:1.6}
 .note h3 a.anchor{color:var(--muted); text-decoration:none; opacity:0; margin-inline-start:6px; font-weight:400}
 .note h3:hover a.anchor{opacity:1}
-.note h4{font-size:15.5px; margin:16px 0 4px}
+.note h3{cursor:pointer; user-select:none; display:flex; align-items:flex-start; gap:8px}
+.note h3 .t{flex:1}
+.chev2{flex-shrink:0; margin-top:7px; color:var(--muted); transition:transform .2s}
+.note:not(.open) h3 .chev2{transform:rotate(90deg)}
+.note:not(.open) .note-body{display:none}
+.note:not(.open){padding-bottom:6px}
+.sub{border-top:1px solid var(--line); margin-top:8px}
+.note-body > .sub:first-child{margin-top:4px}
+.sub h4{font-size:15.5px; margin:0; padding:10px 0 6px; cursor:pointer; user-select:none;
+  display:flex; align-items:flex-start; gap:8px; color:var(--text)}
+.sub h4 .t{flex:1}
+.sub h4:hover, .note h3:hover .t{color:var(--accent)}
+.sub:not(.open) h4 .chev2{transform:rotate(90deg)}
+.sub:not(.open) .sub-body{display:none}
+.sub-body{padding-bottom:6px}
 .note p{margin:8px 0}
 .note ul,.note ol{padding-inline-start:22px; margin:8px 0}
 .hidden{display:none !important}
@@ -176,6 +190,37 @@ pre code{background:none; padding:0; font-size:13.5px; white-space:pre}
     if (curNote) curNote.el.appendChild(el);
   });
 
+  // 2-ب) كل ملاحظة تبقى مقفولة: يظهر العنوان بس، ولما تدوس عليه يفتح.
+  //      ولو جواها عناوين فرعية (####) كل واحد فيهم برده بيفتح لما تدوس عليه.
+  var CHEV = '<svg class="chev2" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>';
+  function makeHead(h){
+    var t = document.createElement('span'); t.className = 't';
+    while (h.firstChild) t.appendChild(h.firstChild);
+    h.innerHTML = CHEV; h.appendChild(t);
+  }
+  content.querySelectorAll('article.note').forEach(function(art){
+    var h3 = art.querySelector('h3');
+    var anchor = h3.querySelector('.anchor');
+    if (anchor) { anchor.onclick = function(e){ e.stopPropagation(); }; }
+    makeHead(h3);
+    var body = document.createElement('div'); body.className = 'note-body';
+    var kids = Array.prototype.slice.call(art.children).filter(function(k){ return k !== h3; });
+    var curSub = null;
+    kids.forEach(function(k){
+      if (k.tagName === 'H4') {
+        curSub = document.createElement('section'); curSub.className = 'sub';
+        makeHead(k);
+        var sb = document.createElement('div'); sb.className = 'sub-body';
+        curSub.appendChild(k); curSub.appendChild(sb); body.appendChild(curSub);
+        (function(sec){ k.onclick = function(){ sec.classList.toggle('open'); }; })(curSub);
+        return;
+      }
+      if (curSub) curSub.querySelector('.sub-body').appendChild(k); else body.appendChild(k);
+    });
+    art.appendChild(body);
+    h3.onclick = function(){ art.classList.toggle('open'); };
+  });
+
   // 3) نبني الفهرس الجانبي
   var allNotes = [];
   groups.forEach(function(g){
@@ -190,7 +235,7 @@ pre code{background:none; padding:0; font-size:13.5px; white-space:pre}
     g.notes.forEach(function(nt){
       var li = document.createElement('li');
       var a = document.createElement('a'); a.href = '#' + nt.el.id; a.textContent = nt.title;
-      a.onclick = function(){ document.body.classList.remove('menu-open'); flash(nt.el); };
+      a.onclick = function(){ document.body.classList.remove('menu-open'); nt.el.classList.add('open'); flash(nt.el); };
       li.appendChild(a); ul.appendChild(li);
       nt.link = a; nt.li = li; nt.text = (g.title + ' ' + nt.el.textContent).toLowerCase();
       allNotes.push(nt);
@@ -241,6 +286,7 @@ pre code{background:none; padding:0; font-size:13.5px; white-space:pre}
       node.parentNode.replaceChild(frag, node);
     });
   }
+  var wasSearching = false;
   function run(){
     var term = q.value.trim().toLowerCase(), shown = 0;
     clearMarks(content);
@@ -248,6 +294,15 @@ pre code{background:none; padding:0; font-size:13.5px; white-space:pre}
       var ok = !term || nt.text.indexOf(term) >= 0;
       nt.el.classList.toggle('hidden', !ok); nt.li.classList.toggle('hidden', !ok);
       if (ok) { shown++; if (term) highlight(nt.el, term); }
+      if (term && ok) {
+        nt.el.classList.add('open');
+        nt.el.querySelectorAll('.sub').forEach(function(sec){
+          sec.classList.toggle('open', sec.textContent.toLowerCase().indexOf(term) >= 0);
+        });
+      } else if (wasSearching) {
+        nt.el.classList.remove('open');
+        nt.el.querySelectorAll('.sub').forEach(function(sec){ sec.classList.remove('open'); });
+      }
     });
     groups.forEach(function(g){
       if (!g.box) return;
@@ -257,6 +312,7 @@ pre code{background:none; padding:0; font-size:13.5px; white-space:pre}
       g.count.textContent = vis;
       if (term) g.box.classList.remove('closed');
     });
+    wasSearching = !!term;
     count.textContent = term ? (shown + ' من ' + allNotes.length + ' ملاحظة') : (allNotes.length + ' ملاحظة');
     empty.classList.toggle('hidden', shown > 0);
   }
@@ -265,13 +321,17 @@ pre code{background:none; padding:0; font-size:13.5px; white-space:pre}
     if (e.key === 'Escape') { q.value = ''; run(); }
     if (e.key === 'Enter') {
       var first = allNotes.filter(function(nt){ return !nt.el.classList.contains('hidden'); })[0];
-      if (first) { document.body.classList.remove('menu-open'); first.el.scrollIntoView(); flash(first.el); }
+      if (first) { document.body.classList.remove('menu-open'); first.el.classList.add('open'); first.el.scrollIntoView(); flash(first.el); }
     }
   });
   document.addEventListener('keydown', function(e){
     if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); }
   });
   run();
+  if (location.hash) {
+    var target = document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    if (target && target.classList.contains('note')) { target.classList.add('open'); setTimeout(function(){ target.scrollIntoView(); }, 50); }
+  }
 
   // 6) تمييز الملاحظة اللي انت واقف عندها في الفهرس
   if ('IntersectionObserver' in window) {
